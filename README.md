@@ -1,14 +1,24 @@
-# tenant-isolation-audit
+# Tenant Isolation Audit
 
-**Minimal Manual.** Review multi-tenant design notes for isolation and access-control gaps.
+<p align="center">
+  <img src="assets/readme-cover.svg" alt="Tenant Isolation Audit cover" width="100%" />
+</p>
 
-## Name
+![stack](https://img.shields.io/badge/stack-Python-4b5563?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-2563eb?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-16a34a?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-dc2626?style=flat-square)
 
-Multi-tenant bugs are high impact. This CLI checks design notes for missing tenant filters, shared resources, and weak tests.
+Review multi-tenant design notes for isolation and access-control gaps.
 
-## Install
+## The short version
 
-`tenant-isolation-audit` accepts tenant isolation review notes or service design text in text, JSON, JSONL, or CSV form.
+`tenant-isolation-audit` is intentionally small: feed it a file, get deterministic findings, and decide whether the result should block a merge or just guide cleanup.
+
+## Rule surface
+
+| Rule | Severity | What it catches |
+| --- | --- | --- |
+| `missing-tenant-filter` | high | tenant filter is missing |
+| `shared-resource` | medium | shared resource detected |
+| `missing-access-test` | low | cross-tenant access test is missing |
 
 ## Usage
 
@@ -18,30 +28,19 @@ tenant-isolation-audit examples/sample.txt
 tenant-isolation-audit examples/sample.txt --json --fail-on medium
 ```
 
-## Rules
+## Useful defaults
 
-| Rule | Severity | Meaning |
-|---|---:|---|
-| `missing-tenant-filter` | high | tenant filter is missing |
-| `shared-resource` | medium | shared resource detected |
-| `missing-access-test` | low | cross-tenant access test is missing |
+| Option | Reason |
+| --- | --- |
+| `--json` | machine-readable output for scripts |
+| `--fail-on medium` | stricter CI gate when warnings matter |
+| `--format auto` | let the reader detect text, CSV, JSON, or JSONL |
 
-## Tests
+## Local checks
 
 ```bash
+python -m pip install -e ".[dev]"
 ruff check .
 pytest
 python -m tenant_isolation_audit --help
 ```
-
-License: MIT
-
-### Example Input
-
-```text
-query all accounts tenant_filter missing shared bucket access_test none
-```
-
-### Architecture
-
-`cli.py` reads files, `core.py` evaluates records, and `rules.py` keeps the tenant-isolation-audit policy surface explicit.
